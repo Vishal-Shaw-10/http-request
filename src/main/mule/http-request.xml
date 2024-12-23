@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f1aa91ce-ca56-4664-939f-a0872ac9e0ea" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="fb25a27a-14c1-49cc-a455-f929cad660de" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2a5f7842-0d5a-440f-bbf5-012cd75a8253" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<flow name="http-requestFlow" doc:id="212e7465-074d-4a67-8a57-a44dd2a1594f" >
+		<http:listener doc:name="Listener" doc:id="060c7f28-8aea-4b41-be6b-73ffad8e1f42" config-ref="HTTP_Listener_config" path="read-data" allowedMethods="GET"/>
+		<file:read doc:id="4f48686c-c3de-42fb-a2de-7d50246250e1" doc:name="Read json file" config-ref="File_Config" path="C:\Users\VISHAL\Downloads\sample.json" outputMimeType="application/json"/>
+		<set-variable value="#[payload.^mediaType]" doc:name="Set Variable" doc:id="4af48c56-7400-4bf1-b783-7540cb96d554" variableName="mime-type"/>
+		<logger level="INFO" doc:name="MIME type" doc:id="8aa2dd65-6144-4b3f-8ac0-8255a0163ec7" message="The mime type of the data is : #[payload.^mediaType]"/>
+		<http:request method="POST" doc:name="Request" doc:id="82bf21fd-948b-40d7-81b4-00e86a54ea67" path="/read-child-data" config-ref="HTTP_Request_configuration"/>
+		<logger level="INFO" doc:name="Logger" doc:id="21832186-99d6-4109-b4bf-15e123c18dc3" message="The final mimi type received : #[payload.^mediaType]"/>
+	</flow>
+	<flow name="http-requestFlow1" doc:id="e54c51cd-6738-406b-a58c-b57d93634201" >
+		<http:listener doc:name="Listener" doc:id="e0afaf9a-ebb5-404f-b2b7-d5427b3826a1" config-ref="HTTP_Listener_config" path="read-child-data"/>
+		<file:write doc:name="Write" doc:id="67f28f04-2116-47eb-9486-3e534a8a1962" config-ref="File_Config" path="F:\mulesoft-testing-data\sample.json"/>
+		<set-variable value="#[payload.^mediaType]" doc:name="Set Variable" doc:id="f46ee9d7-f52d-4221-b13e-93a168ee855d" variableName="child-var"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8ad1a96c-d996-4164-848d-505ccfac2d60" message="This is child media type: #[payload.^mediaType]"/>
+	</flow>
+</mule>
